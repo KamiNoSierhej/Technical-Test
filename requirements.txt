@@ -1,0 +1,12 @@
+Django
+psycopg2
+psycopg2-binary
+djangorestframework
+django-rest-auth
+django-allauth
+requests
+mock
+django-phonenumber-field
+phonenumbers
+
+ipdb
