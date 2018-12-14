@@ -7,12 +7,13 @@ from rest_framework.generics import ListCreateAPIView, CreateAPIView
 from users.helpers import credit_check
 from users.models import User, Profile, CreditCheck
 from users.serializers import UserSerializer, ProfileSerializer, CreditCheckSerializer
+from users.permissions import CompletedSignupAndAcceptedCredit
 
 
 class UserListView(ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated, CompletedSignupAndAcceptedCredit)
 
 
 class ProfileCreationView(ModelViewSet):
@@ -30,9 +31,11 @@ class ProfileCreationView(ModelViewSet):
     serializer_class = ProfileSerializer
 
     def create(self, request, *args, **kwargs):
+        logged_user = request.user
         profile = (
-            Profile.objects.filter(user_id=request.user.id).first() or
-            Profile(user=request.user)
+            logged_user.profile
+            if hasattr(logged_user, 'profile') else
+            Profile(user=logged_user)
         )
         serializer = self.get_serializer(profile, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -75,30 +78,32 @@ class CreditCheckCreationView(CreateAPIView):
             logged_user.profile.first_name,
             logged_user.profile.last_name
         )
+
         if credit_check_resonse.get('accepted') is None:
 
             return Response(
                 credit_check_resonse, status=status.HTTP_200_OK
             )
 
-        if hasattr(logged_user, 'creditcheck'):
-            user_credit_check = logged_user.creditcheck
-            user_credit_check.accepted = credit_check_resonse['accepted']
-            user_credit_check.data = credit_check_resonse
-            user_credit_check.save()
+        user_has_credit_check_already = hasattr(logged_user, 'creditcheck')
+        user_credit_check = (
+            logged_user.creditcheck
+            if user_has_credit_check_already else
+            CreditCheck(user=logged_user)
+        )
+        serializer = self.get_serializer(
+            user_credit_check, data=credit_check_resonse
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
 
-            return Response(
-                self.get_serializer(user_credit_check).data,
-                status=status.HTTP_200_OK
-            )
-        else:
-            user_credit_check = CreditCheck(
-                user=logged_user,
-                accepted=credit_check_resonse['accepted'],
-                data=credit_check_resonse,
-            )
-
-            return Response(
-                self.get_serializer(user_credit_check).data,
-                status=status.HTTP_201_CREATED
-            )
+        return Response(
+            serializer.data,
+            status=(
+                status.HTTP_200_OK
+                if user_has_credit_check_already else
+                status.HTTP_201_CREATED
+            ),
+            headers=headers
+        )

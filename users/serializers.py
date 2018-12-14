@@ -5,7 +5,7 @@ from rest_auth.registration.serializers import RegisterSerializer
 
 
 class CustomRegisterSerializer(RegisterSerializer):
-    username = None
+    username = serializers.CharField(read_only=True)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -15,12 +15,18 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CreditCheckSerializer(serializers.ModelSerializer):
-    accepted = serializers.BooleanField(read_only=True)
-    data = serializers.JSONField(read_only=True)
+    accepted = serializers.BooleanField()
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial.pop('accepted')
+
+        return initial
 
     class Meta:
         model = CreditCheck
-        fields = ('accepted', 'data',)
+        fields = ('accepted', 'user',)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -39,9 +45,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     mobile_phone = PhoneNumberField(
         required=False, allow_blank=True
     )
-    user = serializers.PrimaryKeyRelatedField(
-        read_only=True,
-    )
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Profile
