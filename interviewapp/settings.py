@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 
     # Project apps.
-    'signup',
     'users',
 ]
 
@@ -150,7 +149,7 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'users.User'
 
 REST_AUTH_REGISTER_SERIALIZERS = {
-    'REGISTER_SERIALIZER': 'signup.serializers.CustomRegisterSerializer',
+    'REGISTER_SERIALIZER': 'users.serializers.CustomRegisterSerializer',
 }
 
 ACCOUNT_AUTHENTICATION_METHOD = 'email'

@@ -1,12 +1,26 @@
 from rest_framework import serializers
-from users.models import User, Profile
+from users.models import User, Profile, CreditCheck
 from phonenumber_field.serializerfields import PhoneNumberField
+from rest_auth.registration.serializers import RegisterSerializer
+
+
+class CustomRegisterSerializer(RegisterSerializer):
+    username = None
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email',)
+
+
+class CreditCheckSerializer(serializers.ModelSerializer):
+    accepted = serializers.BooleanField(read_only=True)
+    data = serializers.JSONField(read_only=True)
+
+    class Meta:
+        model = CreditCheck
+        fields = ('accepted', 'data',)
 
 
 class ProfileSerializer(serializers.ModelSerializer):

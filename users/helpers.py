@@ -18,5 +18,8 @@ def credit_check(first_name, last_name):
         ).json()
     except exceptions.ConnectionError:
         return {
-            'message': 'Connection error occurred.',
+            'message': (
+                'Connection error with 3rd party data provider '
+                'occurred.'
+            )
         }
