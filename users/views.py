@@ -6,14 +6,18 @@ from rest_framework.generics import ListCreateAPIView, CreateAPIView
 
 from users.helpers import credit_check
 from users.models import User, Profile, CreditCheck
-from users.serializers import UserSerializer, ProfileSerializer, CreditCheckSerializer
+from users.serializers import (
+    UserSerializer, ProfileSerializer, CreditCheckSerializer
+)
 from users.permissions import CompletedSignupAndAcceptedCredit
 
 
 class UserListView(ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (permissions.IsAuthenticated, CompletedSignupAndAcceptedCredit)
+    permission_classes = (
+        permissions.IsAuthenticated, CompletedSignupAndAcceptedCredit
+    )
 
 
 class ProfileCreationView(ModelViewSet):
@@ -99,11 +103,5 @@ class CreditCheckCreationView(CreateAPIView):
         headers = self.get_success_headers(serializer.data)
 
         return Response(
-            serializer.data,
-            status=(
-                status.HTTP_200_OK
-                if user_has_credit_check_already else
-                status.HTTP_201_CREATED
-            ),
-            headers=headers
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )

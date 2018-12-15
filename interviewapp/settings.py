@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,7 +42,7 @@ INSTALLED_APPS = [
     # Third party.
     'allauth',
     'allauth.account',
-    'django.contrib.sites',
+    'allauth.socialaccount',
     'phonenumber_field',
     'rest_auth',
     'rest_auth.registration',
@@ -151,12 +152,14 @@ AUTH_USER_MODEL = 'users.User'
 REST_AUTH_REGISTER_SERIALIZERS = {
     'REGISTER_SERIALIZER': 'users.serializers.CustomRegisterSerializer',
 }
+REST_AUTH_SERIALIZERS = {
+    'LOGIN_SERIALIZER': 'users.serializers.CustomLoginSerializer',
+}
 
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = 'none'
-SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -167,6 +170,8 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # Misc
+SITE_ID = 1
+
 DATA_SOURCE_FOR_CREDIT_INFORMATION = (
     'https://functionapp20180527095701.azurewebsites.net/api/CreditCheckCall'
 )
