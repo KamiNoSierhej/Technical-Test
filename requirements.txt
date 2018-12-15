@@ -8,3 +8,7 @@ requests
 mock
 django-phonenumber-field
 phonenumbers
+dj_database_url
+gunicorn
+whitenoise
+django_heroku
