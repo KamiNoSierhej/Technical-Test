@@ -8,5 +8,3 @@ requests
 mock
 django-phonenumber-field
 phonenumbers
-
-ipdb
