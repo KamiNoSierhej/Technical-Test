@@ -9,16 +9,10 @@ class CompletedSignupAndAcceptedCredit(BasePermission):
 
     def has_permission(self, request, view):
         logged_user = request.user
-        missing_profile_or_creditcheck = (
-            not hasattr(logged_user, 'profile') or
-            not hasattr(logged_user, 'creditcheck')
+
+        return (
+            logged_user.has_profile and
+            logged_user.has_creditcheck and
+            logged_user.creditcheck.accepted and
+            logged_user.profile.completed
         )
-
-        if (
-            missing_profile_or_creditcheck or
-            not logged_user.creditcheck.accepted or
-            not logged_user.profile.completed
-        ):
-            return False
-
-        return True

@@ -123,6 +123,10 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
+DATE_INPUT_FORMATS = ('%d-%m-%Y', '%Y-%m-%d')
+
+DATE_FORMATS = '%d-%m-%Y'
+
 USE_I18N = True
 
 USE_L10N = True
@@ -150,10 +154,10 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'users.User'
 
 REST_AUTH_REGISTER_SERIALIZERS = {
-    'REGISTER_SERIALIZER': 'users.serializers.CustomRegisterSerializer',
+    'REGISTER_SERIALIZER': 'users.serializers.misc.CustomRegisterSerializer',
 }
 REST_AUTH_SERIALIZERS = {
-    'LOGIN_SERIALIZER': 'users.serializers.CustomLoginSerializer',
+    'LOGIN_SERIALIZER': 'users.serializers.misc.CustomLoginSerializer',
 }
 
 ACCOUNT_AUTHENTICATION_METHOD = 'email'

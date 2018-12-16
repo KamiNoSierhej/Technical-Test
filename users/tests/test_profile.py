@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from users.models import User, Profile
-from users.views import ProfileCreationView
+from users.views.profile import ProfileView
 
 factory = APIRequestFactory()
 
@@ -77,7 +77,6 @@ class ProfileCreationViewTest(TestCase):
                 'last_name': None,
                 'date_of_birth': None,
                 'mobile_phone': None,
-                'user': self.user.id
             }
         )
         self.assertTrue(Profile.objects.filter(user_id=self.user.id).exists())
@@ -96,7 +95,6 @@ class ProfileCreationViewTest(TestCase):
                 'last_name': 'Wiseau',
                 'date_of_birth': '10-10-1979',
                 'mobile_phone': '+48691070500',
-                'user': self.user.id
             }
         )
         self.assertTrue(Profile.objects.filter(user_id=self.user.id).exists())
@@ -115,18 +113,17 @@ class ProfileCreationViewTest(TestCase):
                 'last_name': 'Wiseau',
                 'date_of_birth': '10-10-1979',
                 'mobile_phone': '+48691070500',
-                'user': self.user.id
             }
         )
 
         profile_id = self.user.profile.id
         request_data = {'mobile_phone': '+48500075887'}
-        request = factory.post('/', data=request_data, format='json')
+        request = factory.patch('/', data=request_data, format='json')
         force_authenticate(request, self.user)
 
         response = self.view(request)
 
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertDictEqual(
             response.data,
             {
@@ -134,7 +131,6 @@ class ProfileCreationViewTest(TestCase):
                 'last_name': 'Wiseau',
                 'date_of_birth': '10-10-1979',
                 'mobile_phone': '+48500075887',
-                'user': self.user.id
             }
         )
         self.assertEquals(self.user.profile.id, profile_id)
@@ -164,4 +160,11 @@ class ProfileCreationViewTest(TestCase):
 
     @property
     def view(self):
-        return ProfileCreationView.as_view({'post': 'create'})
+        return ProfileView.as_view(
+            {
+                'get': 'retrieve',
+                'post': 'create',
+                'patch': 'partial_update',
+                'delete': 'destroy'
+            }
+        )

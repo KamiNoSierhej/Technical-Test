@@ -5,12 +5,12 @@ from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from users.models import User, Profile, CreditCheck
-from users.views import CreditCheckCreationView
+from users.views.credit_check import CreditCheckView
 
 factory = APIRequestFactory()
 
 
-class CreditCheckCreationViewTest(TestCase):
+class CreditCheckViewTest(TestCase):
 
     def setUp(self):
         self.user = User(email='test@test.test')
@@ -19,7 +19,7 @@ class CreditCheckCreationViewTest(TestCase):
             first_name='Tommy', last_name='Wiseau', user=self.user
         )
         self.profile.save()
-        self.credit_check_error = {'message': 'error'}
+        self.credit_check_error = {'Message': 'error'}
         self.credit_check_accepted = {
             'name': 'Tommy Wiseau',
             'accepted': True
@@ -39,7 +39,7 @@ class CreditCheckCreationViewTest(TestCase):
             CreditCheck.objects.filter(user_id=self.user.id).exists()
         )
 
-    @mock.patch('users.views.credit_check')
+    @mock.patch('users.serializers.credit_check.credit_check_call')
     def test_default_behaviour_accepted(self, credit_check):
         credit_check.return_value = self.credit_check_accepted
         request = factory.post('/', data={}, format='json')
@@ -55,7 +55,7 @@ class CreditCheckCreationViewTest(TestCase):
             CreditCheck.objects.filter(user_id=self.user.id).exists()
         )
 
-    @mock.patch('users.views.credit_check')
+    @mock.patch('users.serializers.credit_check.credit_check_call')
     def test_default_behaviour_rejected(self, credit_check):
         credit_check.return_value = self.credit_check_rejected
         request = factory.post('/', data={}, format='json')
@@ -71,7 +71,7 @@ class CreditCheckCreationViewTest(TestCase):
             CreditCheck.objects.filter(user_id=self.user.id).exists()
         )
 
-    @mock.patch('users.views.credit_check')
+    @mock.patch('users.serializers.credit_check.credit_check_call')
     def test_default_behaviour_error(self, credit_check):
         credit_check.return_value = self.credit_check_error
         request = factory.post('/', data={}, format='json')
@@ -79,8 +79,7 @@ class CreditCheckCreationViewTest(TestCase):
 
         response = self.view(request)
 
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertDictEqual(response.data, {'message': 'error'})
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(
             CreditCheck.objects.filter(user_id=self.user.id).exists()
         )
@@ -94,13 +93,17 @@ class CreditCheckCreationViewTest(TestCase):
         response = self.view(request)
 
         self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertDictEqual(
-            response.data, {'message': 'Users first or last name missing.'}
-        )
         self.assertFalse(
             CreditCheck.objects.filter(user_id=self.user.id).exists()
         )
 
     @property
     def view(self):
-        return CreditCheckCreationView.as_view()
+        return CreditCheckView.as_view(
+            {
+                'get': 'retrieve',
+                'post': 'create',
+                'put': 'update',
+                'delete': 'destroy'
+            }
+        )
