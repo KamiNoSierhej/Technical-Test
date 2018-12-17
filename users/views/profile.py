@@ -11,9 +11,13 @@ from users.filters import RetrieveForLoggedUserFilter
 
 class ProfileView(GetObjectMixin, ModelViewSet):
     """
+    Get returns Logged User Profile.
+
     Logged User is able to make POST or PATCH with any of given parameters
     ('first_name', 'last_name', 'date_of_birth', 'mobile_phone') to create new
     or update already existing Profile.
+
+    DELETE is used to delete Profile associated wit Logged user.
 
     date_of_birth format: DD-MM-YYY
     mobile_phone format : dialing code and number example: "+48691060500"

@@ -97,6 +97,40 @@ class CreditCheckViewTest(TestCase):
             CreditCheck.objects.filter(user_id=self.user.id).exists()
         )
 
+    def test_retrieve(self):
+        CreditCheck(user=self.user).save()
+        request = factory.get('/', format='json')
+        force_authenticate(request, self.user)
+
+        response = self.view(request)
+
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+
+    def test_retrieve_when_no_credit_check(self):
+        request = factory.get('/', format='json')
+        force_authenticate(request, self.user)
+
+        response = self.view(request)
+
+        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_destroy(self):
+        CreditCheck(user=self.user).save()
+        request = factory.delete('/', format='json')
+        force_authenticate(request, self.user)
+
+        response = self.view(request)
+
+        self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_destroy_when_no_credit_check(self):
+        request = factory.delete('/', format='json')
+        force_authenticate(request, self.user)
+
+        response = self.view(request)
+
+        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+
     @property
     def view(self):
         return CreditCheckView.as_view(
