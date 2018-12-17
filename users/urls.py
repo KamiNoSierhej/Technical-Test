@@ -5,7 +5,7 @@ from users.views.profile import ProfileView
 from users.views.credit_check import CreditCheckView
 
 urlpatterns = [
-    url(r'^list/$', UserListView.as_view(), name='list'),
+    url(r'^list/$', UserListView.as_view({'get': 'list'}), name='list'),
     url(
         r'^profile/$',
         ProfileView.as_view(
